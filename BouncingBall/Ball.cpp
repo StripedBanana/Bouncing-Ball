@@ -15,7 +15,7 @@ Ball::Ball()
     this->previousSpeedX = 0;
     this->previousSpeedY = 0;
     this->accX = 0;
-    this->accY = 1;
+    this->accY = 0;
     this->radius = 10;
 }
 

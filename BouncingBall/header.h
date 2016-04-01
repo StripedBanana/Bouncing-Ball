@@ -1,2 +1,2 @@
-#define HEIGHT 600
-#define LENGTH 800
+#define HEIGHT 700
+#define LENGTH 700
