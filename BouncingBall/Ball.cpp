@@ -45,15 +45,22 @@ void Ball::updatePos(float step)
     this->previousSpeedX = this->speedX;
     this->previousSpeedY = this->speedY;
 
-    cout << "x=" << currentX << " y=" << currentY << endl;
-    cout << "sx=" << previousSpeedX << " sy=" << previousSpeedY << endl;
+    //cout << "x=" << currentX << " y=" << currentY << endl;
+    //cout << "sx=" << previousSpeedX << " sy=" << previousSpeedY << endl;
 }
 
 void Ball::handleCollision()
 {
     float X = this->currentX, Y = this->currentY, rad = this->radius;
-    if(X > (LENGTH - 2*rad) || X < 0) this->previousSpeedX = -this->previousSpeedX;
-    if(Y > (HEIGHT - 2*rad) || Y < 0) this->previousSpeedY = -this->previousSpeedY;
+    float coef = 1;
+    if(X >= (LENGTH - 2*rad) || X <= 0)
+    {
+        this->previousSpeedX = -this->previousSpeedX/coef;
+    }
+    if(Y >= (HEIGHT - 2*rad) || Y <= 0)
+    {
+        this->previousSpeedY = -this->previousSpeedY/coef;
+    }
 }
 
 void Ball::setRadius(float newr)
