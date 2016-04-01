@@ -6,20 +6,29 @@ class Ball
 {
     public:
         Ball();
+        void handleCollision();
         virtual ~Ball();
 
-        void updatePos(float step); // Using Verlet integration
-        float getX(){return nextX;};
-        float getY(){return nextY;};
+        void updatePos(float step); // Using Euleur method
+        float getX(){return currentX;};
+        float getY(){return currentY;};
+        float getAccX(){return accX;};
+        float getAccY(){return accY;};
+        void setRadius(float newr);
         void setXY(float x, float y);
+        void setSpeedXY(float sx, float sy);
+        void setAccXY(float newaccx, float newaccy);
 
     protected:
 
     private:
         // Ball positions
-        float nextX, nextY;
+        float speedX, speedY;
+        float previousSpeedX, previousSpeedY;
         float currentX, currentY;
         float previousX, previousY;
+        float accX, accY;
+        float radius;
 };
 
 #endif // BALL_H
