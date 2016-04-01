@@ -1,6 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "Ball.h"
 #include "header.h"
+#include "Quadtree.h"
 #include <time.h>
 #include <iostream>
 
@@ -17,6 +18,8 @@ int main()
     vector<Ball*> balls(nbBalls);
     vector<sf::CircleShape> ballShapes(nbBalls);
 
+    Quadtree* quad = new Quadtree(0, 0, 0, LENGTH, HEIGHT);
+
     sf::ContextSettings settings;
     settings.antialiasingLevel = 4;
     sf::RenderWindow window(sf::VideoMode(LENGTH, HEIGHT), "Bouncing ball", sf::Style::Default, settings);
@@ -30,7 +33,7 @@ int main()
         balls[i] = new Ball();
         balls[i]->setRadius(ballRadius);
         balls[i]->setXY(LENGTH/2-ballRadius, HEIGHT/2-ballRadius);
-        balls[i]->setSpeedXY(int(rand()%2000)/100-10,int(rand()%2000)/100-10);
+        balls[i]->setSpeedXY(float(rand()%2000)/100-10,float(rand()%2000)/100-10);
     }
 
     while (window.isOpen())
