@@ -10,10 +10,15 @@ class Ball
         virtual ~Ball();
 
         void updatePos(float step); // Using Euleur method
+
+        // Getters
         float getX(){return currentX;};
         float getY(){return currentY;};
         float getAccX(){return accX;};
         float getAccY(){return accY;};
+        float getRadius(){return radius;};
+
+        // Setters
         void setRadius(float newr);
         void setXY(float x, float y);
         void setSpeedXY(float sx, float sy);
