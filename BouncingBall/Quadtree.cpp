@@ -1,5 +1,9 @@
 #include "Quadtree.h"
 #include <stdbool.h>
+#include "header.h"
+#include <iostream>
+
+using namespace std;
 
 Quadtree::Quadtree()
 {
@@ -8,6 +12,10 @@ Quadtree::Quadtree()
     this->tlCornerY = 0;
     this->L = LENGTH;
     this->H = HEIGHT;
+    std::vector<Quadtree*> q(4);
+    this->nodes = q;
+
+
 }
 
 Quadtree::Quadtree(int level, float tlCornerX, float tlCornerY, float L, float H)
@@ -17,6 +25,8 @@ Quadtree::Quadtree(int level, float tlCornerX, float tlCornerY, float L, float H
     this->tlCornerY = tlCornerY;
     this->L = L;
     this->H = H;
+    std::vector<Quadtree*> q(4);
+    this->nodes = q;
 }
 
 /*
@@ -59,8 +69,8 @@ int Quadtree::getIndex(Ball* ball) {
     float x = ball->getX();
     float y = ball->getY();
     float radius = ball->getRadius();
-    double verticalMidpoint = this->tlCornerX + this->L;
-    double horizontalMidpoint = this->tlCornerY + this->H;
+    double verticalMidpoint = this->tlCornerX + (this->L)/2;
+    double horizontalMidpoint = this->tlCornerY + (this->H)/2;
 
     // Object can completely fit within the top quadrants
     bool topQuadrant = (y < horizontalMidpoint && y + radius*2 < horizontalMidpoint);
@@ -86,6 +96,7 @@ int Quadtree::getIndex(Ball* ball) {
         }
     }
 
+    //cout << "index=" << index << endl;
     return index;
  }
 
@@ -95,7 +106,7 @@ int Quadtree::getIndex(Ball* ball) {
  * objects to their corresponding nodes.
  */
  void Quadtree::insertion(Ball* ball) {
-   if (nodes[0] != 0) {
+   if (nodes.at(0)) {
      int index = getIndex(ball);
 
      if (index != -1) {
@@ -104,6 +115,7 @@ int Quadtree::getIndex(Ball* ball) {
        return;
      }
    }
+
 
    balls.push_back(ball);
 
@@ -139,6 +151,28 @@ std::vector<Ball*> Quadtree::retrieve(std::vector<Ball*> returnBalls, Ball* ball
 
    return returnBalls;
  }
+
+void Quadtree::display(sf::RenderWindow* window)
+{
+    sf::RectangleShape rectangle;
+    rectangle.setPosition(this->tlCornerX, this->tlCornerY);
+    rectangle.setSize(sf::Vector2f(this->L, this->H));
+    rectangle.setOutlineColor(sf::Color::Red);
+    rectangle.setOutlineThickness(5);
+    window->draw(rectangle);
+    /*
+    cout << "level=" << this->level << endl;
+    cout << "x=" << this->tlCornerX << " y=" << this->tlCornerY << endl;
+    cout << "L=" << this->L << " H=" << this->H << endl;
+    */
+    for(int i=0; i<4; i++)
+    {
+        if(nodes[i])
+        {
+            nodes[i]->display(window);
+        }
+    }
+}
 
 Quadtree::~Quadtree()
 {

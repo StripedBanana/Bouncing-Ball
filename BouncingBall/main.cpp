@@ -1,4 +1,3 @@
-#include <SFML/Graphics.hpp>
 #include "Ball.h"
 #include "header.h"
 #include "Quadtree.h"
@@ -9,6 +8,7 @@
 
 int main()
 {
+
     srand(time(NULL));
     int nbBalls, ballRadius;
     cout << "Enter the balls number: ";
@@ -25,6 +25,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode(LENGTH, HEIGHT), "Bouncing ball", sf::Style::Default, settings);
     window.setVerticalSyncEnabled(true);
     //window.setFramerateLimit(30);
+
     for(int i=0; i<nbBalls; i++)
     {
         ballShapes[i].setRadius(ballRadius);
@@ -32,7 +33,7 @@ int main()
         ballShapes[i].setFillColor(color);
         balls[i] = new Ball();
         balls[i]->setRadius(ballRadius);
-        balls[i]->setXY(LENGTH/2-ballRadius, HEIGHT/2-ballRadius);
+        balls[i]->setXY(rand()%(LENGTH-2*ballRadius)+1, rand()%(HEIGHT-2*ballRadius)+1);
         balls[i]->setSpeedXY(float(rand()%2000)/100-10,float(rand()%2000)/100-10);
     }
 
@@ -45,6 +46,21 @@ int main()
                 window.close();
         }
         window.clear();
+        quad->clr();
+        for(int i=0; i<nbBalls; i++)
+        {
+            quad->insertion(balls[i]);
+        }
+
+        vector<sf::RectangleShape*> rectangle_array;
+
+
+        quad->display(&window);
+
+
+
+
+
         for(int i=0; i<nbBalls; i++)
         {
             balls[i]->updatePos(0.5);
@@ -52,7 +68,11 @@ int main()
             ballShapes[i].setPosition(balls[i]->getX(), balls[i]->getY());
             window.draw(ballShapes[i]);
         }
+
         window.display();
+
+
+
     }
 
     return 0;
