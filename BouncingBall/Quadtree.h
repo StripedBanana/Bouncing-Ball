@@ -14,6 +14,8 @@ class Quadtree
         int getIndex(Ball* ball);
         void insertion(Ball* ball);
         std::vector<Ball*> retrieve(std::vector<Ball*> returnBalls, Ball* ball);
+        void display(sf::RenderWindow* window);
+        Quadtree* getNode(int i){return nodes[i];};
         virtual ~Quadtree();
 
     protected:
