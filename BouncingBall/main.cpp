@@ -3,6 +3,7 @@
 #include "Quadtree.h"
 #include <time.h>
 #include <iostream>
+#include <sstream>
 
  using namespace std;
 
@@ -11,6 +12,20 @@ int main()
 
     srand(time(NULL));
     int nbBalls, ballRadius;
+
+    sf::Font MyFont;
+
+    // Loading the font
+    if (!MyFont.loadFromFile("arial.ttf"))
+    {
+        cout << "Error while loading font file" << endl;
+    }
+
+    sf::Text fps("Hello", MyFont, 50);
+
+    fps.setColor(sf::Color::Blue);
+    fps.setPosition(0,0);
+
     cout << "Enter the balls number: ";
     cin >> nbBalls;
     cout << "Enter the balls radius: ";
@@ -20,6 +35,7 @@ int main()
 
     Quadtree* quad = new Quadtree(0, 0, 0, LENGTH, HEIGHT);
 
+    sf::Clock clock;
     sf::ContextSettings settings;
     settings.antialiasingLevel = 4;
     sf::RenderWindow window(sf::VideoMode(LENGTH, HEIGHT), "Bouncing ball", sf::Style::Default, settings);
@@ -33,8 +49,8 @@ int main()
         ballShapes[i].setFillColor(color);
         balls[i] = new Ball();
         balls[i]->setRadius(ballRadius);
-        balls[i]->setXY(rand()%(LENGTH-2*ballRadius)+1, rand()%(HEIGHT-2*ballRadius)+1);
-        balls[i]->setSpeedXY(float(rand()%2000)/100-10,float(rand()%2000)/100-10);
+        balls[i]->setXY(rand()%(LENGTH/3)+LENGTH/3, rand()%(HEIGHT/3)+HEIGHT/3);
+        balls[i]->setSpeedXY(5, 5);
     }
 
     while (window.isOpen())
@@ -69,6 +85,13 @@ int main()
             window.draw(ballShapes[i]);
         }
 
+        int framerate = 1 / clock.getElapsedTime().asSeconds() ;
+        clock.restart();
+
+        stringstream ss;
+        ss << framerate;
+        fps.setString(ss.str().c_str());
+        window.draw(fps);
         window.display();
 
 
