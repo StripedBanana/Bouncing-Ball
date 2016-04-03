@@ -7,6 +7,8 @@
 
  using namespace std;
 
+int circlesColliding(Ball* b1, Ball* b2);
+
 int main()
 {
     srand(time(NULL));
@@ -54,6 +56,9 @@ int main()
         balls[i]->setSpeedXY(rand()%(100)/10-5, rand()%(100)/10-5);
     }
 
+    Ball* ballTest = balls[nbBalls-1];
+    sf::CircleShape ballTestShape = ballShapes[nbBalls-1];
+
     while (window.isOpen())
     {
         sf::Event event;
@@ -82,17 +87,20 @@ int main()
         }
 
         returnBalls.clear();
-        returnBalls = quad->retrieve(balls.at(nbBalls-1));
-        ballShapes.at(nbBalls-1).setOutlineColor(sf::Color::Black);
-        ballShapes.at(nbBalls-1).setOutlineThickness(ballRadius/2);
-        //cout << "x=" << balls.at(nbBalls-1)->getX() << " y=" << balls.at(nbBalls-1)->getY() << endl;
+        returnBalls = quad->retrieve(ballTest);
+        ballTestShape = ballShapes[nbBalls-1];
+        ballTestShape.setOutlineColor(sf::Color::Black);
+        ballTestShape.setOutlineThickness(ballRadius/2);
+        window.draw(ballTestShape);
 
         for (int x = 0; x < returnBalls.size(); x++) {
             // Run collision detection algorithm between objects
             returnBallShapes[x].setPosition(returnBalls[x]->getX(), returnBalls[x]->getY());
-            returnBallShapes[x].setFillColor(sf::Color::Cyan);
+            bool collision = circlesColliding(ballTest, returnBalls[x]);
+            if(collision) returnBallShapes[x].setFillColor(sf::Color::Blue);
+            else returnBallShapes[x].setFillColor(sf::Color::Cyan);
             returnBallShapes[x].setRadius(ballRadius);
-            //cout << "x=" << returnBalls[x]->getX() << " y=" << returnBalls[x]->getY() << endl;
+
             window.draw(returnBallShapes[x]);
         }
 
@@ -110,9 +118,27 @@ int main()
         window.draw(fps);
         window.display();
 
-        cin.ignore();
+        //cin.ignore();
 
     }
 
     return 0;
+}
+
+int circlesColliding(Ball* b1, Ball* b2)
+{
+    //compare the distance to combined radii
+    int x1 = b1->getX()+b1->getRadius(), y1 = b1->getY()+b1->getRadius();
+    int x2 = b2->getX()+b2->getRadius(), y2 = b2->getY()+b2->getRadius();
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    int radii = b1->getRadius() + b2->getRadius();
+    if ( (dx * dx)  + (dy * dy) < radii*radii )
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
