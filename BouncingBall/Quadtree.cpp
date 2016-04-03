@@ -141,16 +141,17 @@ int Quadtree::getIndex(Ball* ball) {
  /*
  * Return all objects that could collide with the given object
  */
-std::vector<Ball*> Quadtree::retrieve(std::vector<Ball*> returnBalls, Ball* ball) {
+std::vector<Ball*> Quadtree::retrieve(Ball* ball) {
    int index = getIndex(ball);
    if (index != -1 && nodes[0] != 0) {
-     nodes[index]->retrieve(returnBalls, ball);
+     std::vector<Ball*> temp = nodes[index]->retrieve(ball);
+     balls.insert(balls.end(), temp.begin(), temp.end());
+     return balls;
    }
 
-   returnBalls.insert(returnBalls.end(), balls.begin(), balls.end());
+   return balls;
 
-   return returnBalls;
- }
+}
 
 void Quadtree::display(sf::RenderWindow* window)
 {
@@ -158,7 +159,7 @@ void Quadtree::display(sf::RenderWindow* window)
     rectangle.setPosition(this->tlCornerX, this->tlCornerY);
     rectangle.setSize(sf::Vector2f(this->L, this->H));
     rectangle.setOutlineColor(sf::Color::Red);
-    rectangle.setOutlineThickness(5);
+    rectangle.setOutlineThickness(1);
     window->draw(rectangle);
     /*
     cout << "level=" << this->level << endl;
