@@ -146,8 +146,7 @@ std::vector<Ball*> Quadtree::retrieve(Ball* ball) {
    if (index != -1 && nodes[0] != 0) {
      std::vector<Ball*> temp = nodes[index]->retrieve(ball);
      balls.insert(balls.end(), temp.begin(), temp.end());
-     return balls;
-   }
+    }
 
    return balls;
 
