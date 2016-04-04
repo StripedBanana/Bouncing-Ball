@@ -141,14 +141,13 @@ int Quadtree::getIndex(Ball* ball) {
  /*
  * Return all objects that could collide with the given object
  */
-std::vector<Ball*> Quadtree::retrieve(Ball* ball) {
-   int index = getIndex(ball);
-   if (index != -1 && nodes[0] != 0) {
-     std::vector<Ball*> temp = nodes[index]->retrieve(ball);
-     balls.insert(balls.end(), temp.begin(), temp.end());
+void Quadtree::retrieve(std::vector<Ball*>* returnBalls, Ball* ball) {
+    int index = getIndex(ball);
+    if (index != -1 && nodes[0] != 0) {
+        nodes[index]->retrieve(returnBalls, ball);
     }
 
-   return balls;
+    returnBalls->insert(returnBalls->end(), balls.begin(), balls.end());
 
 }
 

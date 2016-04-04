@@ -17,6 +17,7 @@ Ball::Ball()
     this->accX = 0;
     this->accY = 0;
     this->radius = 10;
+    this->mass = 1;
 }
 
 void Ball::updatePos(float step)
@@ -49,7 +50,7 @@ void Ball::updatePos(float step)
     //cout << "sx=" << previousSpeedX << " sy=" << previousSpeedY << endl;
 }
 
-void Ball::handleCollision()
+void Ball::handleWallCollision()
 {
     float X = this->currentX, Y = this->currentY, rad = this->radius;
     float coef = 1;

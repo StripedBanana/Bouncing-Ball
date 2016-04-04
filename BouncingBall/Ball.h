@@ -6,14 +6,17 @@ class Ball
 {
     public:
         Ball();
-        void handleCollision();
+        void handleWallCollision();
         virtual ~Ball();
 
         void updatePos(float step); // Using Euleur method
 
         // Getters
+        float getM(){return mass;};
         float getX(){return currentX;};
         float getY(){return currentY;};
+        float getSpdX(){return speedX;};
+        float getSpdY(){return speedY;};
         float getAccX(){return accX;};
         float getAccY(){return accY;};
         float getRadius(){return radius;};
@@ -34,6 +37,7 @@ class Ball
         float previousX, previousY;
         float accX, accY;
         float radius;
+        float mass;
 };
 
 #endif // BALL_H
