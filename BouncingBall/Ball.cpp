@@ -6,34 +6,32 @@ using namespace std;
 
 Ball::Ball()
 {
-    this->previousX = 0;
-    this->previousY = 0;
-    this->currentX = 0;
-    this->currentY = 0;
-    this->speedX = 0;
-    this->speedY = 0;
-    this->previousSpeedX = 0;
-    this->previousSpeedY = 0;
-    this->accX = 0;
-    this->accY = 0;
+    setXY(0,0);
+    setAccXY(0,0);
+    setOldXY(0,0);
     this->radius = 10;
     this->mass = 1;
+}
+
+Ball::Ball(float x, float y, float ox, float oy, float accx, float accy, float radius, float mass)
+{
+    setXY(x,y);
+    setAccXY(accx,accy);
+    setOldXY(ox,oy);
+    this->radius = radius;
+    this->mass = mass;
 }
 
 void Ball::updatePos(float step)
 {
 
-/*  Verlet integration
-    this->nextX = 2*this->currentX - previousX + accX*step*step;
-    this->nextY = 2*this->currentY - previousY + accY*step*step;
+    // Verlet integration
+    sf::Vector2f temp = pos;
+    pos.x += pos.x - oldPos.x + acc.x*step;
+    pos.y += pos.y - oldPos.y + acc.y*step;
+    oldPos = temp;
 
-    this->previousX = this->currentX;
-    this->previousY = this->currentY;
-
-    this->currentX = this->nextX;
-    this->currentY = this->nextY;
-*/
-
+/* Euler
     this->speedX = this->previousSpeedX + this->accX*step;
     this->speedY = this->previousSpeedY + this->accY*step;
 
@@ -45,22 +43,26 @@ void Ball::updatePos(float step)
 
     this->previousSpeedX = this->speedX;
     this->previousSpeedY = this->speedY;
-
-    //cout << "x=" << currentX << " y=" << currentY << endl;
-    //cout << "sx=" << previousSpeedX << " sy=" << previousSpeedY << endl;
+*/
 }
 
 void Ball::handleWallCollision()
 {
-    float X = this->currentX, Y = this->currentY, rad = this->radius;
-    float coef = 1;
-    if(X >= (LENGTH - 2*rad) || X <= 0)
-    {
-        this->previousSpeedX = -this->previousSpeedX/coef;
+    if (pos.x <= 0) {
+        oldPos.x *= -1;
+        pos.x *= -1;
     }
-    if(Y >= (HEIGHT - 2*rad) || Y <= 0)
-    {
-        this->previousSpeedY = -this->previousSpeedY/coef;
+    if (pos.x >= (LENGTH-2*radius)) {
+        oldPos.x = LENGTH-2*radius + (LENGTH-2*radius - oldPos.x);
+        pos.x = LENGTH-2*radius + (LENGTH-2*radius - pos.x);
+    }
+    if (pos.y <= 0) {
+        oldPos.y *= -1;
+        pos.y *= -1;
+    }
+    if (pos.y >= (HEIGHT-2*radius)) {
+        oldPos.y = HEIGHT-2*radius + (HEIGHT-2*radius - oldPos.y);
+        pos.y = HEIGHT-2*radius + (HEIGHT-2*radius - pos.y);
     }
 }
 
@@ -71,22 +73,20 @@ void Ball::setRadius(float newr)
 
 void Ball::setXY(float x, float y)
 {
-    this->previousX = x;
-    this->previousY = y;
-    this->currentX = x;
-    this->currentY = y;
+    pos.x = x;
+    pos.y = y;
 }
 
-void Ball::setSpeedXY(float sx, float sy)
+void Ball::setOldXY(float x, float y)
 {
-    this->previousSpeedX = sx;
-    this->previousSpeedY = sy;
+    oldPos.x = x;
+    oldPos.y = y;
 }
 
 void Ball::setAccXY(float newaccx, float newaccy)
 {
-    this->accX = newaccx;
-    this->accY = newaccy;
+    acc.x = newaccx;
+    acc.y = newaccy;
 }
 
 Ball::~Ball()
