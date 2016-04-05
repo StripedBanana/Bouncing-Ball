@@ -8,113 +8,117 @@
 
  using namespace std;
 
-int circlesColliding(Ball* b1, Ball* b2);
-void handleBallCollision(Ball* b1, Ball* b2);
+ // Prototypes
+int circlesColliding(Ball* b1, Ball* b2); // returns true if both balls are in contact
+void handleBallCollision(Ball** b1, Ball** b2);   // handles the collision between both balls
 
 int main()
 {
-    srand(time(NULL));
-    int nbBalls, ballRadius, framerate = 60, frameCount = 0;
-
+    // Loading the font and setting up fps
+    sf::Clock clock;
     sf::Font MyFont;
-
-    // Loading the font
-    if (!MyFont.loadFromFile("arial.ttf"))
-    {
-        cout << "Error while loading font file" << endl;
-    }
-
+    if (!MyFont.loadFromFile("arial.ttf")) cout << "Error while loading font file" << endl;
     sf::Text fps("Hello", MyFont, 50);
-
     fps.setColor(sf::Color::Blue);
     fps.setPosition(0,0);
 
+    // User inputs
+    int nbBalls, ballRadius, speed, accY;
     cout << "Enter the balls number: ";
     cin >> nbBalls;
     cout << "Enter the balls radius: ";
     cin >> ballRadius;
+    cout << "Enter the speed (between 1 and 10): ";
+    cin >> speed;
+    cout << "Enter the value of g: ";
+    cin >> accY;
+
+    // Variables declarations
+    srand(time(NULL));
+    int framerate = 60, frameCount = 0;
+    double x, y, dx, dy;
     vector<Ball*> balls(nbBalls);
     vector<Ball*> returnBalls(nbBalls);
-    vector<sf::CircleShape> ballShapes(nbBalls);
-    vector<sf::CircleShape> returnBallShapes(nbBalls);
+    vector<sf::CircleShape*> ballShapes(nbBalls);
     Ball* ballTest;
-    sf::CircleShape ballTestShape;
+    sf::CircleShape* ballTestShape;
     Quadtree* quad = new Quadtree(0, 0, 0, LENGTH, HEIGHT);
+    bool collision;
 
-    sf::Clock clock;
+    // Initializing SFML window
     sf::ContextSettings settings;
     settings.antialiasingLevel = 4;
     sf::RenderWindow window(sf::VideoMode(LENGTH, HEIGHT), "Bouncing ball", sf::Style::Default, settings);
     window.setVerticalSyncEnabled(true);
-    //window.setFramerateLimit(30);
 
+    // Initializing declared arrays
     for(int i=0; i<nbBalls; i++)
     {
-        ballShapes[i].setRadius(ballRadius);
-        sf::Color color(255, 0, 0, 255);
-        ballShapes[i].setFillColor(color);
-        balls[i] = new Ball();
-        balls[i]->setRadius(ballRadius);
-        balls[i]->setXY(rand()%(LENGTH-2*ballRadius), rand()%(HEIGHT-2*ballRadius));
-        balls[i]->setSpeedXY(rand()%(100)/10-5, rand()%(100)/10-5);
+        ballShapes[i] = new sf::CircleShape(ballRadius);
+        sf::Color color(rand()%255+1, rand()%255+1, rand()%255+1, 255);
+        (*ballShapes[i]).setFillColor(color);
+        dx = speed*cos(PI*i/nbBalls);
+        dy = speed*sin(PI*i/nbBalls);
+        x = rand()%(LENGTH-2*ballRadius);
+        y = rand()%(HEIGHT-2*ballRadius);
+        cout << "dx=" << dx << " dy=" << dy << endl;
+        balls[i] = new Ball(x + dx, y + dy, x, y, 0, accY, ballRadius, 1);
     }
 
 
-
+    // Process loop
     while (window.isOpen())
     {
+        // Event handler
         sf::Event event;
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
+
+        // Resetting the window and the quadtree
         window.clear();
         quad->clr();
+
+        // Loop setting up the quadtree
         for(int i=0; i<nbBalls; i++)
         {
             quad->insertion(balls[i]);
         }
 
-        vector<sf::RectangleShape*> rectangle_array;
-
+        // Displaying the quadtree
         quad->display(&window);
 
-        // Updating balls, ballShapes positions and detecting collisions
+        // Loop updating objects positions and detecting collisions
         for(int i=0; i<nbBalls; i++)
         {
-            balls[i]->updatePos(0.5);
+            balls[i]->updatePos(0.01);
             balls[i]->handleWallCollision();
-            ballShapes[i].setPosition(balls[i]->getX(), balls[i]->getY());
-            window.draw(ballShapes[i]);
+            (*ballShapes[i]).setPosition(balls[i]->getX(), balls[i]->getY());
+            window.draw(*ballShapes[i]);
         }
 
+        // Loop detecting in-between objects collisions
         for(int i=0; i<nbBalls; i++)
         {
-            // Running quadtree for list of possible collisions
+            // Running quadtree for list of possible collisions, one object at a time
             ballTest = balls[i];
             returnBalls.erase(returnBalls.begin(), returnBalls.end());
             quad->retrieve(&returnBalls, ballTest);
-            ballTestShape = ballShapes[i];
-            //ballTestShape.setOutlineColor(sf::Color::Black);
-            //ballTestShape.setOutlineThickness(ballRadius/2);
-            window.draw(ballTestShape);
 
             // Checking collision and updating speeds of both balls if so
-            bool collision;
             for (int x = 0; x < returnBalls.size(); x++) {
-                // Run collision detection algorithm between objects
-                returnBallShapes[x].setPosition(returnBalls[x]->getX(), returnBalls[x]->getY());
+                // Running collision detection algorithm between objects
                 if(ballTest != returnBalls[x]) collision = circlesColliding(ballTest, returnBalls[x]);
                 else collision = false;
                 if(collision)
                 {
-                    returnBallShapes[x].setFillColor(sf::Color::Blue);
-                    handleBallCollision(ballTest, returnBalls[x]);
-                    window.draw(returnBallShapes[x]);
+                    cout << "avant\t" << "x=" << ballTest->getX() << " y=" << ballTest->getY() << " oldx=" << ballTest->getOldX() << " oldy=" << ballTest->getOldY() << endl;
+                    handleBallCollision(&ballTest, &returnBalls[x]);
+                    handleBallCollision(&returnBalls[x], &ballTest);
+                    cout << "apres\t" << "x=" << ballTest->getX() << " y=" << ballTest->getY() << " oldx=" << ballTest->getOldX() << " oldy=" << ballTest->getOldY() << endl;
                 }
-                //else returnBallShapes[x].setFillColor(sf::Color::Cyan);
-                returnBallShapes[x].setRadius(ballRadius);
 
             }
         }
@@ -128,15 +132,13 @@ int main()
             clock.restart();
             frameCount = 0;
         }
-
         stringstream ss;
         ss << framerate;
         fps.setString(ss.str().c_str());
         window.draw(fps);
+
+        // Updating window
         window.display();
-
-        //cin.ignore();
-
     }
 
     return 0;
@@ -160,43 +162,45 @@ int circlesColliding(Ball* b1, Ball* b2)
     }
 }
 
-void handleBallCollision(Ball* b1, Ball* b2)
+
+void handleBallCollision(Ball** b1, Ball** b2)
 {
-    double dx = b1->getX() - b2->getX();
-    double dy = b1->getY() - b2->getY();
+    // Calcul de la base orthonormée (n,g)
+
+    double dx = (*b1)->getX() - (*b2)->getX();
+    double dy = (*b1)->getY() - (*b2)->getY();
     double r = sqrt(dx*dx + dy*dy);
 
     // n est perpendiculaire au plan de collision
     double nx = - dx / r;
     double ny = - dy / r;
+    double mn = ny / nx;
+    double pn = (*b1)->getY() - mn * (*b1)->getX();
 
     // g est tangent au plan de collision
     double gx = -ny;
     double gy =  nx;
+    double mg = gy / gx;
+    double pg = (*b1)->getY() - mg * (*b1)->getX();
 
-// Transition des vitesses de la base (x,y) vers (n,g)
+    // projection of the old position on the normal
+    double mp = mg;
+    double pp = (*b1)->getOldY() - mp * (*b1)->getOldX();
 
-    double v1n = nx*b1->getSpdY() + ny*b1->getSpdY();
-    double v1g = gx*b1->getSpdX() + gy*b1->getSpdY();
-    double v2n = nx*b2->getSpdX() + ny*b2->getSpdY();
-    double v2g = gx*b2->getSpdX() + gy*b2->getSpdY();
+    // resolution
+    double projectionX = (pn - pp)/(mp - mn);
+    double projectionY = mp * projectionX + pp;
 
-// Détermination des nouvelles vitesses dans (n,g)
+    // axial symmetry
+    double newX = 2*projectionX - (*b1)->getOldX();
+    double newY = 2*projectionY - (*b1)->getOldY();
 
-    double m = b1->getM() + b2->getM();
+    //cout << "dx=" << dx << " dy=" << dy << " mg=" << mg << " pg=" << pg << " mp=" << mp << " pp=" << pp << endl;
+    //cout << "projectionX=" << projectionX << " projectionY=" << projectionY << endl;
+    (*b1)->setOldXY((*b1)->getX(), (*b1)->getY());
+    (*b1)->setXY(newX, newY);
+    cout << "apres\t" << "x=" << (*b1)->getX() << " y=" << (*b1)->getY() << " oldx=" << (*b1)->getOldX() << " oldy=" << (*b1)->getOldY() << endl;
 
-    double m12 = (b1->getM() - b2->getM())/m;
-    double m22 = (b2->getM() + b2->getM())/m;
-    double m11 = (b1->getM() + b1->getM())/m;
-    double m21 = (b2->getM() - b1->getM())/m;
 
-    double v1n2 = m12*v1n + m22*v2n;
-    double v1g2 = m12*v1g + m22*v2g;
-    double v2n2 = m11*v1n + m21*v2n;
-    double v2g2 = m11*v1g + m21*v2g;
-
-// Modification des vitesses dans la base (x,y)
-
-    b1->setSpeedXY(nx*v1n2 + gx*v1g2, ny*v1n2 + gy*v1g2);
-    b2->setSpeedXY(nx*v2n2 + gx*v2g2, ny*v2n2 + gy*v2g2);
 }
+
