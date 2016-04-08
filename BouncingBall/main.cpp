@@ -66,12 +66,14 @@ int main()
         balls[i] = new Ball(x + dx, y + dy, x, y, 0, accY, ballRadius, 1);
     }
 
-    /*
+
     balls[0]->setXY(LENGTH/2, HEIGHT/2);
-    balls[0]->setOldXY(LENGTH/2 - 1, HEIGHT/2 );
-    balls[1]->setXY(LENGTH/2 + 100, HEIGHT/2 + 20);
-    balls[1]->setOldXY(LENGTH/2 + 100 - 0.5, HEIGHT/2 + 20);
-    */
+    balls[0]->setOldXY(LENGTH/2, HEIGHT/2 );
+    balls[1]->setXY(LENGTH/2 + 2*ballRadius + 5, HEIGHT/2);
+    balls[1]->setOldXY(LENGTH/2 + 2*ballRadius + 5, HEIGHT/2);
+    balls[2]->setXY(LENGTH/2 - 200, HEIGHT/2);
+    balls[2]->setOldXY(LENGTH/2 - 200 - 10, HEIGHT/2);
+
 
 
     // Process loop
@@ -88,6 +90,7 @@ int main()
         // Resetting the window and the quadtree
         window.clear();
         quad->clr();
+        cout << "(" << balls[0]->getX() << "," << balls[0]->getY() << ")" << endl;
 
         // Loop setting up the quadtree
         for(int i=0; i<nbBalls; i++)
@@ -122,12 +125,7 @@ int main()
                 else collision = false;
                 if(collision)
                 {
-                    cout << "collision" << endl << endl;
-                    cout << "avant: b1x=" << ballTest->getX() << " b1y=" << ballTest->getY() << endl;
-                    cout << "avant: b2x=" << returnBalls[x]->getX() << " b2y=" << returnBalls[x]->getY() << endl << endl;
                     handleBallCollision(&ballTest, &returnBalls[x]);
-                    cout << "apres: b1x=" << ballTest->getX() << " b1y=" << ballTest->getY() << endl;
-                    cout << "apres: b2x=" << returnBalls[x]->getX() << " b2y=" << returnBalls[x]->getY() << endl << endl << endl;
                 }
             }
         }
@@ -173,43 +171,11 @@ int circlesColliding(Ball* b1, Ball* b2)
 void handleBallCollision(Ball** b1, Ball** b2)
 {
 
-    /*
-
-    float m1 = (*b1)->getM(), m2 = (*b2)->getM();
-    float v1x_i = (*b1)->getX() - (*b1)->getOldX(), v1y_i = (*b1)->getY() - (*b1)->getOldY();
-    float v2x_i = (*b2)->getX() - (*b2)->getOldX(), v2y_i = (*b2)->getY() - (*b2)->getOldY();
-    float v1x_f = (m1-m2)/(m1+m2)*v1x_i + 2*m2/(m1+m2)*v2x_i, v1y_f = (m1-m2)/(m1+m2)*v1y_i + 2*m2/(m1+m2)*v2y_i;
-    float v2x_f = 2*m1/(m1+m2)*v1x_i + (m2-m1)/(m1+m2)*v2x_i, v2y_f = 2*m1/(m1+m2)*v1y_i + (m2-m1)/(m1+m2)*v2y_i;
-
-    cout << "v1x_i=" << v1x_i << " v2x_i=" << v2x_i << endl;
-    cout << "v1y_i=" << v1y_i << " v2y_i=" << v2y_i << endl << endl;
-    cout << "v1x_f=" << v1x_f << " v2x_f=" << v2x_f << endl;
-    cout << "v1y_f=" << v1y_f << " v2y_f=" << v2y_f << endl << endl;
-
-    cin.ignore();
-    cin.ignore();
-
-    float b1x = (*b1)->getX(), b1y = (*b1)->getY();
-    float b2x = (*b2)->getX(), b2y = (*b2)->getY();
-
-    (*b1)->setOldXY(b1x, b1y);
-    (*b2)->setOldXY(b2x, b2y);
-
-    (*b1)->setXY(b1x + v1x_f, b1y + v1y_f);
-    (*b2)->setXY(b2x + v2x_f, b2y + v2y_f);
-
-    */
-
     /**
      * Modifies les vecteurs vitesses de deux balles qui entrent en collision.
      */
-    // Quantité de mouvement et énergie cinétique avant la collision
 
-        //double qmx1 = b1.m * b1.vx + b2.m * b2.vx;
-        //double qmy1 = b1.m * b1.vy + b2.m * b2.vy;
-        //double ec1  = b1.m * (b1.vx*b1.vx + b1.vy*b1.vy) + b2.m * (b2.vx*b2.vx + b2.vy*b2.vy);
 
-    // Calcul de la base orthonormée (n,g
 
     float x1 = (*b1)->getX(), y1 = (*b1)->getY();
     float x2 = (*b2)->getX(), y2 = (*b2)->getY();
@@ -217,9 +183,26 @@ void handleBallCollision(Ball** b1, Ball** b2)
     float v1x_i = x1 - (*b1)->getOldX(), v1y_i = y1 - (*b1)->getOldY();
     float v2x_i = x2 - (*b2)->getOldX(), v2y_i = y2 - (*b2)->getOldY();
 
+    float radius1 = (*b1)->getRadius(), radius2 = (*b2)->getRadius();
+    float m1 = (*b1)->getM(), m2 = (*b2)->getM();
+
+
+    // Calcul de la base orthonormée (n,g)
     double dx = x1 - x2;
     double dy = y1 - y2;
     double r = sqrt(dx*dx + dy*dy);
+
+    // Correction pour éviter un chevauchement
+    /*
+    sf::Vector2f mtd(dx * ((radius1+radius2) - r)/r, dy * ((radius1+radius2) - r)/r);
+    sf::Vector2f correction(mtd.x * m2/(m2 + m1), mtd.x * m2/(m2 + m1));
+    (*b1)->setXY(x1 + correction.x, y1 + correction.y);
+    (*b1)->setOldXY((*b1)->getOldX() + correction.x, (*b1)->getOldY() + correction.y);
+    (*b2)->setXY(x2 - correction.x, y2 - correction.y);
+    (*b2)->setOldXY((*b2)->getOldX() - correction.x, (*b2)->getOldY() - correction.y);
+
+    cout << "correctionX" << correction.x << endl;
+    cout << "correctionY" << correction.y << endl << endl;*/
 
     // n est perpendiculaire au plan de collision
     double nx = (x2 - x1) / r;
@@ -237,8 +220,6 @@ void handleBallCollision(Ball** b1, Ball** b2)
     double v2g = gx*v2x_i + gy*v2y_i;
 
     // Détermination des nouvelles vitesses dans (n,g)
-
-    double m1 = (*b1)->getM(), m2 = (*b2)->getM();
     double m = m1 + m2;
 
     double m12 = (m1 - m2)/m;
@@ -267,21 +248,11 @@ void handleBallCollision(Ball** b1, Ball** b2)
     (*b1)->setXY(b1x + v1x_f, b1y + v1y_f);
     (*b2)->setXY(b2x + v2x_f, b2y + v2y_f);
 
-    /*
-    cout << "v1x_i=" << v1x_i << " v2x_i=" << v2x_i << endl;
-    cout << "v1y_i=" << v1y_i << " v2y_i=" << v2y_i << endl << endl;
-    cout << "v1x_f=" << v1x_f << " v2x_f=" << v2x_f << endl;
-    cout << "v1y_f=" << v1y_f << " v2y_f=" << v2y_f << endl << endl;*/
-
-
 }
 
 void debug(sf::RenderWindow* window, vector<Ball*> balls)
 {
-    sf::CircleShape center(balls[0]->getRadius()/10), oldCenter(balls[0]->getRadius()/10
-
-
-                                                                );
+    sf::CircleShape center(balls[0]->getRadius()/10), oldCenter(balls[0]->getRadius()/10);
     center.setFillColor(sf::Color::Green);
     oldCenter.setFillColor(sf::Color::Red);
     for(int i=0; i<balls.size(); i++)

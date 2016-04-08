@@ -398,7 +398,7 @@
 	"header.h"
 	<iostream>
 
-1459895452 c:\users\julien\documents\github\bouncing-ball\bouncingball\ball.h
+1460124178 c:\users\julien\documents\github\bouncing-ball\bouncingball\ball.h
 	"header.h"
 
 1459882152 c:\users\julien\documents\github\bouncing-ball\bouncingball\header.h
@@ -797,8 +797,16 @@
 	"header.h"
 	<iostream>
 
-1459813104 c:\users\julien\documents\github\bouncing-ball\bouncingball\quadtree.h
+1460124177 c:\users\julien\documents\github\bouncing-ball\bouncingball\quadtree.h
 	"header.h"
 	"Ball.h"
 	<vector>
+
+1460124095 source:c:\users\julien\documents\github\bouncing-ball\bouncingball\ballverlet.cpp
+	"BallVerlet.h"
+	"header.h"
+	<iostream>
+
+1460124137 c:\users\julien\documents\github\bouncing-ball\bouncingball\ballverlet.h
+	"header.h"
 
